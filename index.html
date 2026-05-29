@@ -808,34 +808,36 @@ section {
     <p style="text-align: center; color: #aaa; margin-bottom: 40px; font-size: 16px;">Have a question or experiencing an issue? Let us know below.</p>
     
     <div class="contact-container">
-        <form action="https://formsubmit.co/calebcleghorn30@gmail.com" method="POST">
-            <input type="hidden" name="_subject" value="New Velix Tweaks Support Request!">
-            <input type="hidden" name="_captcha" value="false">
-            <input type="hidden" name="_template" value="table">
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="fname">First Name</label>
-                    <input type="text" id="fname" name="First Name" required placeholder="John">
-                </div>
-                <div class="form-group">
-                    <label for="lname">Last Name</label>
-                    <input type="text" id="lname" name="Last Name" required placeholder="Doe">
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="Email" required placeholder="your@email.com">
-            </div>
-            
-            <div class="form-group">
-                <label for="problem">Describe Your Problem</label>
-                <textarea id="problem" name="Problem" minlength="25" required placeholder="Please provide details (minimum 25 characters)..."></textarea>
-            </div>
-            
-            <button type="submit" class="btn buy" style="width: 100%; padding: 16px; font-size: 16px; margin-top: 10px;">Send Message</button>
-        </form>
+<form action="https://api.web3forms.com/submit" method="POST">
+    <!-- Paste your Web3Forms Access Key right here inside the value quotes -->
+    <input type="hidden" name="access_key" value="YOUR_ACCESS_KEY_HERE">
+    
+    <!-- This redirects them back to your site after sending -->
+    <input type="hidden" name="redirect" value="https://velixtweaks.github.io/">
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label for="fname">First Name</label>
+            <input type="text" id="fname" name="First Name" required placeholder="John">
+        </div>
+        <div class="form-group">
+            <label for="lname">Last Name</label>
+            <input type="text" id="lname" name="Last Name" required placeholder="Doe">
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="Email" required placeholder="your@email.com">
+    </div>
+    
+    <div class="form-group">
+        <label for="problem">Describe Your Problem</label>
+        <textarea id="problem" name="Problem" minlength="25" required placeholder="Please provide details (minimum 25 characters)..."></textarea>
+    </div>
+    
+    <button type="submit" class="btn buy" style="width: 100%; padding: 16px; font-size: 16px; margin-top: 10px;">Send Message</button>
+</form>
     </div>
 </section>
 
