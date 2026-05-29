@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VelixTweaks | Optimization Engine</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: white;
+    overflow-x: hidden;
+    background: #000;
+}
+
+/* ANIMATED BACKGROUND */
+.bg {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background-color: #050505;
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: panGrid 20s linear infinite;
+}
+
+@keyframes panGrid {
+    0% { background-position: 0 0; }
+    100% { background-position: 40px 40px; }
+}
+
+/* GLOW EFFECT */
+.glow {
+    position: fixed;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(100,100,255,0.08) 0%, rgba(0,0,0,0) 70%);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+    pointer-events: none;
+    animation: pulseGlow 8s ease-in-out infinite alternate;
+}
+
+@keyframes pulseGlow {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+    100% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+}
+
+/* NAV */
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 50px;
+    position: sticky;
+    top: 0;
+    backdrop-filter: blur(16px);
+    background: rgba(0,0,0,0.6);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    z-index: 100;
+}
+
+.logo {
+    cursor: pointer;
+}
+
+.logo-top {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.logo-bottom {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    letter-spacing: 6px;
+    color: #888;
+}
+
+/* NAV BUTTONS */
+.nav-links {
+    display: flex;
+    gap: 8px;
+    list-style: none;
+    background: rgba(255,255,255,0.03);
+    padding: 6px;
+    border-radius: 50px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.nav-links a {
+    padding: 10px 18px;
+    border-radius: 50px;
+    text-decoration: none;
+    color: #aaa;
+    cursor: pointer;
+    transition: 0.25s;
+    font-size: 13px;
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.nav-links a:hover {
+    background: rgba(255,255,255,0.06);
+    color: white;
+}
+
+.nav-links a.active {
+    background: rgba(255,255,255,0.12);
+    color: white;
+    box-shadow: 0 0 15px rgba(255,255,255,0.1);
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.cart-indicator {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.08);
+    padding: 8px 16px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.cart-indicator:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+.buy-btn {
+    background: white;
+    color: black;
+    padding: 10px 22px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 14px;
+}
+
+.buy-btn:hover {
+    box-shadow: 0 0 20px rgba(255,255,255,0.4);
+    transform: scale(1.05);
+}
+
+/* SECTIONS & ANIMATION */
+section {
+    display: none;
+    animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* HERO */
+.hero {
+    text-align: center;
+    padding: 120px 20px;
+    max-width: 1000px;
+    margin: auto;
+}
+
+.hero h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 64px;
+    font-weight: 700;
+    text-shadow: 0 0 30px rgba(255,255,255,0.1);
+}
+
+.hero p {
+    color: #aaa;
+    margin: 20px auto;
+    max-width: 800px;
+    line-height: 1.6;
+    font-size: 16px;
+}
+
+/* IMAGE */
+.app-preview {
+    margin-top: 60px;
+}
+
+.app-preview img {
+    width: 100%;
+    max-width: 900px;
+    border-radius: 15px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* PRODUCTS */
+.products, .generic-page {
+    padding: 100px 60px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.products h2, .generic-page h2 {
+    text-align: center;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 42px;
+    margin-bottom: 50px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: rgba(20, 20, 25, 0.6);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 25px;
+    transition: 0.3s;
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(10px);
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border-color: rgba(255,255,255,0.2);
+}
+
+.card h3 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.price {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 28px;
+    color: #00ff88;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.card p {
+    font-size: 14px;
+    color: #aaa;
+    margin-bottom: 25px;
+    flex-grow: 1;
+}
+
+.card-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 14px;
+    border-radius: 50px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+    border: none;
+    text-decoration: none;
+}
+
+.add {
+    background: rgba(255,255,255,0.08);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.add:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+.buy {
+    background: white;
+    color: black;
+}
+
+.buy:hover {
+    background: #e0e0e0;
+}
+
+/* CART STYLES */
+.cart-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: rgba(20, 20, 25, 0.6);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.cart-empty {
+    color: #aaa;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.cart-item-ui {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cart-item-info h3 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 22px;
+    margin-bottom: 5px;
+}
+
+.cart-item-info p {
+    color: #00ff88;
+    font-size: 18px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+}
+
+.cart-actions-big {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.remove-btn {
+    background: transparent;
+    color: #ff4444;
+    border: 1px solid #ff4444;
+}
+
+.remove-btn:hover {
+    background: rgba(255, 68, 68, 0.1);
+}
+
+/* FREE PANEL HUGE SHOWCASE STYLES */
+.free-product-container {
+    background: rgba(20, 20, 25, 0.6);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 60px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+    backdrop-filter: blur(10px);
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.free-product-info h3 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 56px;
+    margin-bottom: 15px;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(255,255,255,0.2);
+}
+
+.free-product-info p {
+    color: #aaa;
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 700px;
+    margin: 0 auto 30px auto;
+}
+
+.free-product-image {
+    width: 100%;
+}
+
+.free-product-image img {
+    width: 100%;
+    max-width: 1000px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+}
+
+/* ABOUT US STYLES */
+.about-container {
+    max-width: 900px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.about-header-text {
+    text-align: center;
+    color: #ccc;
+    font-size: 18px;
+    line-height: 1.8;
+    margin-bottom: 20px;
+}
+
+.about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.about-card {
+    background: rgba(20, 20, 25, 0.6);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 30px;
+    backdrop-filter: blur(10px);
+    transition: 0.3s;
+}
+
+.about-card:hover {
+    border-color: rgba(255,255,255,0.2);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.about-card h3 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 26px;
+    margin-bottom: 15px;
+    color: #00ff88;
+}
+
+.about-card p {
+    color: #aaa;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+/* REVIEWS STYLES */
+.reviews-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.review-img {
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.review-img:hover {
+    transform: scale(1.02);
+    border-color: rgba(0, 255, 136, 0.3);
+}
+
+/* VELIX EXTRA LIST STYLES */
+.extra-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.extra-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(20, 20, 25, 0.6);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 20px 30px;
+    border-radius: 12px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    transition: 0.3s;
+    backdrop-filter: blur(10px);
+}
+
+.extra-item:hover {
+    border-color: #00ff88;
+    box-shadow: 0 5px 25px rgba(0, 255, 136, 0.15);
+    transform: translateX(5px);
+}
+
+.extra-price {
+    color: #00ff88;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+/* CONTACT FORM STYLES */
+.contact-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: rgba(20, 20, 25, 0.6);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 40px;
+    backdrop-filter: blur(10px);
+}
+
+.form-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+.form-group label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: #ccc;
+    font-weight: 600;
+}
+
+.form-group input, .form-group textarea {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 14px;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.form-group input:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: #00ff88;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 140px;
+}
+
+/* TOAST NOTIFICATION */
+#toast {
+    position: fixed;
+    bottom: -60px;
+    right: 30px;
+    background: white;
+    color: black;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transition: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 1000;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+}
+
+#toast.show {
+    bottom: 30px;
+}
+
+@media (max-width: 900px) {
+    nav { padding: 15px 20px; flex-wrap: wrap; gap: 15px; justify-content: center; }
+    .nav-links { overflow-x: auto; max-width: 100%; justify-content: flex-start; }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .hero h1 { font-size: 42px; }
+    .free-product-info h3 { font-size: 42px; }
+    .about-grid { grid-template-columns: 1fr; }
+    .extra-item { font-size: 16px; padding: 15px 20px; flex-direction: column; gap: 5px; text-align: center; }
+    .form-row { flex-direction: column; gap: 0; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="bg"></div>
+<div class="glow"></div>
+
+<nav>
+    <div class="logo" onclick="showPage('home')">
+        <div class="logo-top">VELIX</div>
+        <div class="logo-bottom">TWEAKS</div>
+    </div>
+
+    <ul class="nav-links">
+        <li><a class="active" onclick="showPage('home')">Home</a></li>
+        <li><a onclick="showPage('products')">Products</a></li>
+        <li><a onclick="showPage('free')">Free</a></li>
+        <li><a onclick="showPage('about')">About</a></li>
+        <li><a onclick="showPage('reviews')">Reviews</a></li>
+        <li><a href="https://discord.gg/rjjkpkvQe9" target="_blank">Discord</a></li>
+        <li><a onclick="showPage('contact')">Contact</a></li>
+        <li><a onclick="showPage('cart')">Cart <span id="nav-cart-count">(0)</span></a></li>
+    </ul>
+
+    <div class="nav-right">
+        <div class="cart-indicator" onclick="showPage('cart')">
+            🛒 <span id="cart-count">0</span>
+        </div>
+        <a class="buy-btn" onclick="showPage('products')">Buy now</a>
+    </div>
+</nav>
+
+<div id="toast">Cart Updated!</div>
+
+<section id="home" class="hero" style="display: block;">
+    <h1>Ultra-Low Latency System Optimization Engine</h1>
+    <p>
+        Deep-level performance tuning, input pipeline reduction, and system latency optimization for competitive gaming environments.<br>
+        Engineered for maximum frame stability and response precision.
+    </p>
+    <div class="app-preview">
+        <img src="6a20821e-1e6b-4796-b602-c53965d73951.png" alt="Velix App Interface">
+    </div>
+</section>
+
+<section id="products" class="products">
+    <h2>Velix Product Suite</h2>
+    <div class="grid">
+        <div class="card">
+            <h3>VelixUltimatePanel</h3>
+            <div class="price">$20</div>
+            <p>Complete system optimization dashboard with real-time tuning capabilities.</p>
+            <div class="card-actions">
+                <button class="btn add" onclick="addToCart('VelixUltimatePanel')">Add to Cart</button>
+                <a href="https://buy.stripe.com/eVq4gB3Su0BM9WNaRdgjC0o" class="btn buy">Buy Now</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>VelixMacro</h3>
+            <div class="price">$5</div>
+            <p>Advanced automation tools with millisecond precision recording.</p>
+            <div class="card-actions">
+                <button class="btn add" onclick="addToCart('VelixMacro')">Add to Cart</button>
+                <a href="https://buy.stripe.com/14AdRbbkW84eed32kHgjC0q" class="btn buy">Buy Now</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>VelixAimTweaks</h3>
+            <div class="price">$10</div>
+            <p>Mouse input pipeline optimization and raw-input prioritization.</p>
+            <div class="card-actions">
+                <button class="btn add" onclick="addToCart('VelixAimTweaks')">Add to Cart</button>
+                <a href="https://buy.stripe.com/4gMbJ32OqfwG8SJf7tgjC0h" class="btn buy">Buy Now</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>VelixFullOpti</h3>
+            <div class="price">$40</div>
+            <p>The full performance package for elite-tier hardware extraction.</p>
+            <div class="card-actions">
+                <button class="btn add" onclick="addToCart('VelixFullOpti')">Add to Cart</button>
+                <a href="https://buy.stripe.com/8x214p60Cbgqed3aRdgjC0p" class="btn buy">Buy Now</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>VelixExtra</h3>
+            <div class="price" style="color: #fff; font-size: 20px;">A La Carte</div>
+            <p>Additional premium services, console tweaks, PC checkups, and specialized hardware overclocks.</p>
+            <div class="card-actions" style="margin-top: auto;">
+                <button class="btn buy" style="width: 100%; flex: none;" onclick="showPage('velix-extra')">View Options</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="velix-extra" class="generic-page">
+    <h2>VELIX EXTRA</h2>
+    <p style="text-align: center; color: #aaa; margin-bottom: 40px; font-size: 18px;">Additional premium services and optimizations</p>
+
+    <div class="extra-list">
+        <div class="extra-item"><span>GPU OPTIMIZATION (NVIDIA, AMD, INTEL)</span> <span class="extra-price">$5</span></div>
+        <div class="extra-item"><span>INPUT OPTIMIZATION (KEYBOARD & MOUSE)</span> <span class="extra-price">$5</span></div>
+        <div class="extra-item"><span>BIOS OPTI (GIGABYTE, ASUS TUFF)</span> <span class="extra-price">$10</span></div>
+        <div class="extra-item"><span>PROCESS REDUCER (50 PROCESSES)</span> <span class="extra-price">$10</span></div>
+        <div class="extra-item"><span>WINDOWS OPTIMIZATION</span> <span class="extra-price">$15</span></div>
+        <div class="extra-item"><span>GPU OVERCLOCK</span> <span class="extra-price">$5</span></div>
+        <div class="extra-item"><span>CPU OVERCLOCK</span> <span class="extra-price">$5</span></div>
+        <div class="extra-item"><span>VELIX OS</span> <span class="extra-price">$20</span></div>
+        <div class="extra-item"><span>XBOX TWEAKS</span> <span class="extra-price">$5</span></div>
+        <div class="extra-item"><span>PLAYSTATION TWEAKS</span> <span class="extra-price">$5</span></div>
+        <div class="extra-item"><span>PC VIRUS / MALWARE CHECKUP</span> <span class="extra-price">$5</span></div>
+        <div class="extra-item"><span>NETWORK OPTIMIZATION (ETHERNET)</span> <span class="extra-price">$10</span></div>
+    </div>
+
+    <div style="text-align: center; margin-top: 50px;">
+        <a href="https://discord.gg/rjjkpkvQe9" target="_blank" class="btn buy" style="padding: 18px 50px; font-size: 18px; display: inline-block;">CREATE A TICKET TO BUY THESE</a>
+    </div>
+</section>
+
+<section id="cart" class="generic-page">
+    <h2>Your Cart</h2>
+    <div class="cart-container" id="cart-ui-container">
+        <p class="cart-empty">Your cart is currently empty.</p>
+        <button class="btn buy" style="padding: 15px 40px;" onclick="showPage('products')">Browse Products</button>
+    </div>
+</section>
+
+<section id="free" class="generic-page">
+    <h2>Free Tweaks</h2>
+    <div class="free-product-container">
+        <div class="free-product-info">
+            <h3>VelixFreePanel</h3>
+            <p>Experience baseline system optimization with our free utility. Monitor your live system load, clean up Windows, debloat unnecessary background processes, and get a taste of what the Velix optimization engine can do for your framerates.</p>
+            
+            <a href="VelixFreePanel.zip" download="VelixFreePanel.zip" class="btn buy" style="padding: 16px 40px; font-size: 16px; margin-top: 10px; display: inline-block;">Download Free Panel</a>
+        </div>
+        
+        <div class="free-product-image">
+            <img src="image.png" alt="Velix Free Panel Dashboard UI">
+        </div>
+    </div>
+</section>
+
+<section id="about" class="generic-page">
+    <h2>The Engine Behind Elite Performance</h2>
+    <div class="about-container">
+        
+        <p class="about-header-text">
+            At Velix Tweaks, we understand that in competitive gaming, the difference between winning and losing is measured in milliseconds. Built by a dedicated team of hardware enthusiasts, software engineers, and competitive players, Velix was created to bridge the gap between stock Windows performance and bare-metal hardware potential. We don't just guess; we benchmark, analyze, and deploy targeted solutions.
+        </p>
+
+        <div class="about-grid">
+            <div class="about-card">
+                <h3>What We Offer</h3>
+                <p>We provide a comprehensive suite of deep-level system optimizations. Out of the box, standard operating systems are bloated with background telemetry, unnecessary services, and unoptimized input pipelines. Velix Tweaks systematically bypasses this bloatware to prioritize game processes, stabilize frametimes, and completely eliminate processing bottlenecks that cause micro-stutters during intense gameplay.</p>
+            </div>
+            
+            <div class="about-card">
+                <h3>Why Trust Us?</h3>
+                <p>We despise "snake oil" PC tweaks that ruin operating systems. Our utility is built on transparency and safety. Every single tweak deployed by the Velix engine is rigorously tested across hundreds of different hardware configurations to ensure 100% stability. We don't touch dangerous registry keys that break Windows updates, and our software will never cause permanent hardware damage. If we can't prove a tweak works via objective benchmarking, we don't include it.</p>
+            </div>
+            
+            <div class="about-card">
+                <h3>Unmatched Quality</h3>
+                <p>Our tweaks aren't just placebos. Users consistently report massively increased 1% and 0.1% lows, resulting in gameplay that feels buttery smooth even in the most chaotic scenarios. By optimizing the mouse input pipeline at the kernel level, Velix provides an immediate, noticeable reduction in click-to-photon delay, giving you true raw input that tracks flawlessly.</p>
+            </div>
+
+            <div class="about-card">
+                <h3>Community Driven</h3>
+                <p>We actively listen to the competitive esports community. Our updates are continuously driven by player feedback and the latest shifts in Windows OS architecture. From the entirely free, open-source basic tweaks to our elite-tier FullOpti package, we ensure there is a performance solution tailored to every level of gamer.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="reviews" class="generic-page">
+    <h2>What Users Are Saying:</h2>
+    <p style="text-align: center; color: #aaa; margin-bottom: 40px;">Join thousands of satisfied players reducing their system latency.</p>
+    
+    <div class="reviews-container">
+        <img src="review 1.PNG" alt="Customer Review from Insociable HTL" class="review-img">
+        <img src="review 2.PNG" alt="Customer Review from 9dtf" class="review-img">
+        <img src="review 3.PNG" alt="Customer Review from Xzen" class="review-img">
+        <img src="review 4.PNG" alt="Customer Review from Unknown" class="review-img">
+    </div>
+</section>
+
+<section id="contact" class="generic-page">
+    <h2>Contact Us</h2>
+    <p style="text-align: center; color: #aaa; margin-bottom: 40px; font-size: 16px;">Have a question or experiencing an issue? Let us know below.</p>
+    
+    <div class="contact-container">
+        <form action="https://formsubmit.co/calebcleghorn30@gmail.com" method="POST">
+            <input type="hidden" name="_subject" value="New Velix Tweaks Support Request!">
+            <input type="hidden" name="_captcha" value="false">
+            <input type="hidden" name="_template" value="table">
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fname">First Name</label>
+                    <input type="text" id="fname" name="First Name" required placeholder="John">
+                </div>
+                <div class="form-group">
+                    <label for="lname">Last Name</label>
+                    <input type="text" id="lname" name="Last Name" required placeholder="Doe">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="Email" required placeholder="your@email.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="problem">Describe Your Problem</label>
+                <textarea id="problem" name="Problem" minlength="25" required placeholder="Please provide details (minimum 25 characters)..."></textarea>
+            </div>
+            
+            <button type="submit" class="btn buy" style="width: 100%; padding: 16px; font-size: 16px; margin-top: 10px;">Send Message</button>
+        </form>
+    </div>
+</section>
+
+<script>
+// PRODUCT DATABASE
+const productDatabase = {
+    'VelixUltimatePanel': { price: '$20', link: 'https://buy.stripe.com/eVq4gB3Su0BM9WNaRdgjC0o' },
+    'VelixMacro': { price: '$5', link: 'https://buy.stripe.com/14AdRbbkW84eed32kHgjC0q' },
+    'VelixAimTweaks': { price: '$10', link: 'https://buy.stripe.com/4gMbJ32OqfwG8SJf7tgjC0h' },
+    'VelixFullOpti': { price: '$40', link: 'https://buy.stripe.com/8x214p60Cbgqed3aRdgjC0p' }
+};
+
+let currentCartItem = null;
+let toastTimeout;
+
+// Dynamic Routing System
+function showPage(pageId) {
+    // Added 'contact' to routing array
+    const pages = ['home', 'products', 'cart', 'free', 'about', 'reviews', 'velix-extra', 'contact'];
+    
+    pages.forEach(p => {
+        const el = document.getElementById(p);
+        if (el) {
+            el.style.display = p === pageId ? "block" : "none";
+        }
+    });
+
+    const links = document.querySelectorAll(".nav-links a");
+    links.forEach(a => {
+        a.classList.remove("active");
+        if (a.getAttribute("onclick") === `showPage('${pageId}')`) {
+            a.classList.add("active");
+        }
+    });
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Add to Cart
+function addToCart(productName) {
+    currentCartItem = productName; 
+    
+    // Update visible counters
+    document.getElementById("cart-count").innerText = "1";
+    document.getElementById("nav-cart-count").innerText = "(1)";
+    
+    // Update the actual Cart Page UI
+    renderCartPage();
+
+    // Show Toast Notification
+    const toast = document.getElementById("toast");
+    toast.innerText = `${productName} added! (Replaced previous item)`;
+    toast.classList.add("show");
+
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => {
+        toast.classList.remove("show");
+    }, 3000);
+}
+
+// Remove from Cart
+function removeFromCart() {
+    currentCartItem = null;
+    
+    document.getElementById("cart-count").innerText = "0";
+    document.getElementById("nav-cart-count").innerText = "(0)";
+    
+    renderCartPage();
+}
+
+// Render Cart UI dynamically
+function renderCartPage() {
+    const container = document.getElementById("cart-ui-container");
+    
+    if (!currentCartItem) {
+        container.innerHTML = `
+            <p class="cart-empty">Your cart is currently empty.</p>
+            <button class="btn buy" style="padding: 15px 40px;" onclick="showPage('products')">Browse Products</button>
+        `;
+    } else {
+        const productInfo = productDatabase[currentCartItem];
+        
+        container.innerHTML = `
+            <div class="cart-item-ui">
+                <div class="cart-item-info" style="text-align: left;">
+                    <h3>${currentCartItem}</h3>
+                    <p>${productInfo.price}</p>
+                </div>
+                <div class="cart-actions-big">
+                    <a href="${productInfo.link}" class="btn buy" style="padding: 12px 30px; display: inline-block; text-decoration: none;">Proceed to Checkout</a>
+                    <button class="btn remove-btn" onclick="removeFromCart()">Remove Item</button>
+                </div>
+            </div>
+            <p style="color: #666; font-size: 12px; margin-top: 20px;">* Note: Velix Tweaks only allows one product license in the cart at a time.</p>
+        `;
+    }
+}
+</script>
+
+</body>
+</html>
